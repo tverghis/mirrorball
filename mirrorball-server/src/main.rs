@@ -1,4 +1,6 @@
 mod api;
+mod models;
+mod repository;
 
 use axum::Router;
 

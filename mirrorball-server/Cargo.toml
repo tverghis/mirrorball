@@ -4,5 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-tokio = { version = "1.53", features = ["full"] }
+anyhow = { workspace = true }
 axum = "0.8"
+jiff = { version = "0.2", features = ["serde"] }
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1.53", features = ["full"] }
+uuid = { version = "1.26", features = ["v4", "serde"] }
