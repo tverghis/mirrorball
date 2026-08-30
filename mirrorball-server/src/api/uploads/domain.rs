@@ -1,4 +1,4 @@
-use std::{num::NonZeroUsize, path::PathBuf};
+use std::{num::NonZeroU64, path::PathBuf};
 
 use axum::{
     http::StatusCode,
@@ -37,7 +37,7 @@ impl IntoResponse for UploadApiError {
 
 #[derive(Debug, Deserialize)]
 pub struct CreateUploadRequest {
-    pub file_size: NonZeroUsize,
+    pub file_size: NonZeroU64,
     pub destination: PathBuf,
     pub chunk_hashes: Vec<String>,
 }

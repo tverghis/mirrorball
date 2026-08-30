@@ -1,6 +1,6 @@
 use std::{
     collections::HashMap,
-    num::NonZeroUsize,
+    num::{NonZeroU64, NonZeroUsize},
     path::PathBuf,
     sync::{Arc, Mutex},
 };
@@ -20,7 +20,7 @@ pub trait UploadsRepository: Send + Sync {
     fn new_upload(
         &self,
         destination: PathBuf,
-        size: NonZeroUsize,
+        size: NonZeroU64,
         chunk_hashes: &[String],
     ) -> anyhow::Result<Upload>;
 
@@ -57,7 +57,7 @@ impl UploadsRepository for InMemoryRepository {
     fn new_upload(
         &self,
         destination: PathBuf,
-        size: NonZeroUsize,
+        size: NonZeroU64,
         chunk_hashes: &[String],
     ) -> anyhow::Result<Upload> {
         let mut state = self.state.lock().unwrap();
@@ -94,7 +94,7 @@ pub fn for_config(config: &Config) -> Arc<dyn UploadsRepository> {
     Arc::new(repo)
 }
 
-fn derive_token(file_size: NonZeroUsize, chunk_hashes: &[String]) -> String {
+fn derive_token(file_size: NonZeroU64, chunk_hashes: &[String]) -> String {
     let mut token_hasher = Sha256::new();
 
     let size_bytes = file_size.get().to_be_bytes();

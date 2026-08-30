@@ -1,4 +1,7 @@
-use std::{num::NonZeroUsize, path::PathBuf};
+use std::{
+    num::{NonZeroU64, NonZeroUsize},
+    path::PathBuf,
+};
 
 use jiff::Timestamp;
 use serde::Serialize;
@@ -15,13 +18,13 @@ pub struct Upload {
     pub id: NonZeroUsize,
     pub token: String,
     pub destination: PathBuf,
-    pub size: NonZeroUsize,
+    pub size: NonZeroU64,
     pub state: UploadState,
     pub created_at: Timestamp,
 }
 
 impl Upload {
-    pub fn new(id: NonZeroUsize, token: String, destination: PathBuf, size: NonZeroUsize) -> Self {
+    pub fn new(id: NonZeroUsize, token: String, destination: PathBuf, size: NonZeroU64) -> Self {
         let now = Timestamp::now();
 
         Self {
