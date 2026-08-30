@@ -23,6 +23,6 @@ impl Config {
         file.read_to_string(&mut contents)
             .context("failed to read config file")?;
 
-        Ok(toml::from_str(&contents).context("failed to deserialize config file")?)
+        toml::from_str(&contents).context("failed to deserialize config file")
     }
 }

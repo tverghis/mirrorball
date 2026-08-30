@@ -80,8 +80,8 @@ impl UploadsRepository for InMemoryRepository {
         Ok(state
             .uploads
             .values()
-            .cloned()
             .filter(|upload| upload.is_pending())
+            .cloned()
             .collect())
     }
 }
