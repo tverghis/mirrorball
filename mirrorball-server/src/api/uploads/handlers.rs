@@ -3,7 +3,7 @@ use std::sync::Arc;
 use axum::{Json, extract::State};
 
 use super::domain::*;
-use crate::repository::UploadsRepository;
+use crate::{common::ChunkDigest, repository::UploadsRepository};
 
 pub async fn create_upload_request(
     State(repo): State<Arc<dyn UploadsRepository>>,
@@ -15,8 +15,16 @@ pub async fn create_upload_request(
         return Err(UploadApiError::ChunkHashCount(num_chunk_hashes));
     }
 
+    let digests: Result<Vec<_>, anyhow::Error> = body
+        .chunk_hashes
+        .iter()
+        .map(|s| ChunkDigest::try_from(s.as_str()))
+        .collect();
+
+    let digests = digests.map_err(|_| UploadApiError::InvalidDigest)?;
+
     let upload = repo
-        .new_upload(body.destination, body.file_size, &body.chunk_hashes)
+        .new_upload(body.destination, body.file_size, &digests)
         .map_err(|_| UploadApiError::CreateUpload)?;
 
     Ok(Json(CreateUploadResponse {

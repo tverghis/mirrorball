@@ -12,6 +12,7 @@ use crate::models::Upload;
 pub enum UploadApiError {
     CreateUpload,
     ChunkHashCount(usize),
+    InvalidDigest,
     Unknown,
 }
 
@@ -25,6 +26,10 @@ impl IntoResponse for UploadApiError {
             Self::ChunkHashCount(count) => (
                 StatusCode::BAD_REQUEST,
                 format!("Chunk hashes count must be in the range [1, 256] - got {count}"),
+            ),
+            Self::InvalidDigest => (
+                StatusCode::BAD_REQUEST,
+                "Received an invalid SHA256 digest".to_owned(),
             ),
             Self::Unknown => (
                 StatusCode::INTERNAL_SERVER_ERROR,

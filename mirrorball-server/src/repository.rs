@@ -9,7 +9,7 @@ use anyhow::Context;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 
-use crate::{config::Config, models::Upload};
+use crate::{common::ChunkDigest, config::Config, models::Upload, utils};
 
 #[derive(Debug, Deserialize, PartialEq, Eq)]
 pub enum RepositoryKind {
@@ -21,7 +21,7 @@ pub trait UploadsRepository: Send + Sync {
         &self,
         destination: PathBuf,
         size: NonZeroU64,
-        chunk_hashes: &[String],
+        chunk_hashes: &[ChunkDigest],
     ) -> anyhow::Result<Upload>;
 
     fn pending_uploads(&self) -> anyhow::Result<Vec<Upload>>;
@@ -58,7 +58,7 @@ impl UploadsRepository for InMemoryRepository {
         &self,
         destination: PathBuf,
         size: NonZeroU64,
-        chunk_hashes: &[String],
+        chunk_hashes: &[ChunkDigest],
     ) -> anyhow::Result<Upload> {
         let mut state = self.state.lock().unwrap();
 
@@ -94,30 +94,15 @@ pub fn for_config(config: &Config) -> Arc<dyn UploadsRepository> {
     Arc::new(repo)
 }
 
-fn derive_token(file_size: NonZeroU64, chunk_hashes: &[String]) -> String {
+fn derive_token(file_size: NonZeroU64, chunk_hashes: &[ChunkDigest]) -> String {
     let mut token_hasher = Sha256::new();
 
     let size_bytes = file_size.get().to_be_bytes();
     token_hasher.update(size_bytes);
 
-    for hash in chunk_hashes {
-        token_hasher.update(hash.as_bytes());
+    for digest in chunk_hashes {
+        token_hasher.update(digest.bytes());
     }
 
-    byte_slice_to_hex_string(&token_hasher.finalize())
-}
-
-fn byte_slice_to_hex_string(input: &[u8]) -> String {
-    use std::fmt::Write;
-
-    // Each byte is represented as 2 hex characters: 0A, 2C, FF, etc.
-    // So we need 2 * the number of input bytes as the capacity of the output String.
-    let mut output = String::with_capacity(input.len() * 2);
-
-    for byte in input {
-        // Writing a byte to a String should never fail
-        write!(&mut output, "{byte:02x}").unwrap()
-    }
-
-    output
+    utils::digest::byte_slice_to_hex_string(&token_hasher.finalize())
 }
