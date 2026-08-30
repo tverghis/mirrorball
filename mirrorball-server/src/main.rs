@@ -8,8 +8,10 @@ use axum::Router;
 use crate::{api::get_api_routes, config::Config};
 
 #[tokio::main]
-async fn main() {
+async fn main() -> anyhow::Result<()> {
     let config = Config::from_file("mirrorball.toml").unwrap();
+
+    ensure_data_root(&config)?;
 
     let api_router = get_api_routes(&config);
 
@@ -19,5 +21,13 @@ async fn main() {
         .await
         .unwrap();
 
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(listener, app).await?;
+
+    Ok(())
+}
+
+fn ensure_data_root(config: &Config) -> std::io::Result<()> {
+    std::fs::create_dir_all(&config.root)?;
+
+    Ok(())
 }

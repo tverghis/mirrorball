@@ -1,4 +1,8 @@
-use std::{fs::File, io::Read, path::Path};
+use std::{
+    fs::File,
+    io::Read,
+    path::{Path, PathBuf},
+};
 
 use anyhow::Context;
 use serde::Deserialize;
@@ -8,6 +12,7 @@ use crate::repository::RepositoryKind;
 #[derive(Debug, Deserialize)]
 pub struct Config {
     pub repo: RepositoryKind,
+    pub root: PathBuf,
 }
 
 impl Config {
