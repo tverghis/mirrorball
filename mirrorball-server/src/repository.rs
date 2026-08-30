@@ -1,9 +1,20 @@
-use std::{collections::HashMap, num::NonZeroUsize, path::PathBuf, sync::Mutex};
+use std::{
+    collections::HashMap,
+    num::NonZeroUsize,
+    path::PathBuf,
+    sync::{Arc, Mutex},
+};
 
 use anyhow::Context;
+use serde::Deserialize;
 use uuid::Uuid;
 
-use crate::models::Upload;
+use crate::{config::Config, models::Upload};
+
+#[derive(Debug, Deserialize, PartialEq, Eq)]
+pub enum RepositoryKind {
+    InMemory,
+}
 
 pub trait UploadsRepository: Send + Sync {
     fn new_upload(
@@ -73,4 +84,12 @@ impl UploadsRepository for InMemoryRepository {
             .filter(|upload| upload.is_pending())
             .collect())
     }
+}
+
+pub fn for_config(config: &Config) -> Arc<dyn UploadsRepository> {
+    let repo = match config.repo {
+        RepositoryKind::InMemory => InMemoryRepository::default(),
+    };
+
+    Arc::new(repo)
 }

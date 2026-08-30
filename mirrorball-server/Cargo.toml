@@ -9,4 +9,5 @@ axum = "0.8"
 jiff = { version = "0.2", features = ["serde"] }
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "1.53", features = ["full"] }
+toml = "1.1.4+spec-1.1.0"
 uuid = { version = "1.26", features = ["v4", "serde"] }
