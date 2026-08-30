@@ -1,4 +1,4 @@
-use std::{num::NonZeroUsize, path::PathBuf, time::Duration};
+use std::{num::NonZeroUsize, path::PathBuf};
 
 use jiff::Timestamp;
 use serde::Serialize;
@@ -16,11 +16,10 @@ pub struct Upload {
     id: NonZeroUsize,
     token: Uuid,
     destination: PathBuf,
-    size: usize,
+    size: NonZeroUsize,
     num_chunks: usize,
     state: UploadState,
     created_at: Timestamp,
-    expires_at: Timestamp,
 }
 
 impl Upload {
@@ -28,7 +27,7 @@ impl Upload {
         id: NonZeroUsize,
         token: Uuid,
         destination: PathBuf,
-        size: usize,
+        size: NonZeroUsize,
         num_chunks: usize,
     ) -> Self {
         let now = Timestamp::now();
@@ -41,7 +40,6 @@ impl Upload {
             num_chunks,
             state: UploadState::NotStarted,
             created_at: now,
-            expires_at: now + Duration::from_mins(30),
         }
     }
 

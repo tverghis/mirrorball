@@ -21,7 +21,7 @@ pub trait UploadsRepository: Send + Sync {
         &self,
         token: Uuid,
         destination: PathBuf,
-        size: usize,
+        size: NonZeroUsize,
         num_chunks: usize,
     ) -> anyhow::Result<Upload>;
 
@@ -59,7 +59,7 @@ impl UploadsRepository for InMemoryRepository {
         &self,
         token: Uuid,
         destination: PathBuf,
-        size: usize,
+        size: NonZeroUsize,
         num_chunks: usize,
     ) -> anyhow::Result<Upload> {
         let mut state = self.state.lock().unwrap();

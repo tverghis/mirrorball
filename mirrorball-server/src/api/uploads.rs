@@ -1,4 +1,4 @@
-use std::{path::PathBuf, sync::Arc};
+use std::{num::NonZeroUsize, path::PathBuf, sync::Arc};
 
 use axum::{
     Json, Router,
@@ -40,7 +40,7 @@ impl IntoResponse for UploadApiError {
 
 #[derive(Debug, Deserialize)]
 struct CreateUploadRequest {
-    file_size: usize,
+    file_size: NonZeroUsize,
     destination: PathBuf,
 }
 
