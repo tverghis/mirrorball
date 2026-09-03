@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["mirrorball-server"]
+members = ["mirrorball-cli","mirrorball-server"]
 
 [workspace.dependencies]
 anyhow = "1.0"
