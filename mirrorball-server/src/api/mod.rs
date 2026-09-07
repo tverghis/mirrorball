@@ -1,6 +1,11 @@
 mod uploads;
 
-use axum::Router;
+use axum::{
+    Json, Router,
+    http::StatusCode,
+    response::{IntoResponse, Response},
+};
+use mirrorball_api::ErrorResponse;
 
 use crate::{config::Config, repository};
 
@@ -16,4 +21,36 @@ fn get_v1_router(config: &Config) -> Router<()> {
     let uploads_router = uploads::router(repo);
 
     Router::new().nest("/uploads", uploads_router)
+}
+
+pub type ApiResponse<T> = Result<Json<T>, ApiError>;
+
+#[derive(Debug)]
+pub struct ApiError {
+    status: StatusCode,
+    code: &'static str,
+    message: String,
+}
+
+impl ApiError {
+    pub fn new(status: StatusCode, code: &'static str, message: impl Into<String>) -> Self {
+        Self {
+            status,
+            code,
+            message: message.into(),
+        }
+    }
+}
+
+impl IntoResponse for ApiError {
+    fn into_response(self) -> Response {
+        (
+            self.status,
+            Json(ErrorResponse {
+                code: self.code.to_string(),
+                message: self.message,
+            }),
+        )
+            .into_response()
+    }
 }

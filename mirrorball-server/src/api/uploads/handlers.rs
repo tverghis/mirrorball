@@ -6,16 +6,16 @@ use mirrorball_api::{
 };
 
 use super::domain::*;
-use crate::{common::ChunkDigest, repository::UploadsRepository};
+use crate::{api::ApiResponse, common::ChunkDigest, repository::UploadsRepository};
 
 pub async fn create_upload_request(
     State(repo): State<Arc<dyn UploadsRepository>>,
     Json(body): Json<CreateUploadRequest>,
-) -> Result<Json<CreateUploadResponse>, UploadApiError> {
+) -> ApiResponse<CreateUploadResponse> {
     let num_chunk_hashes = body.chunk_hashes.len();
 
     if !(1..=256).contains(&num_chunk_hashes) {
-        return Err(UploadApiError::ChunkHashCount(num_chunk_hashes));
+        return Err(UploadApiError::ChunkHashCount(num_chunk_hashes).into());
     }
 
     let digests: Result<Vec<_>, anyhow::Error> = body
@@ -39,7 +39,7 @@ pub async fn create_upload_request(
 
 pub async fn get_pending_uploads(
     State(repo): State<Arc<dyn UploadsRepository>>,
-) -> Result<Json<PendingUploadsResponse>, UploadApiError> {
+) -> ApiResponse<PendingUploadsResponse> {
     let pending_uploads: Vec<_> = repo
         .pending_uploads()
         .map_err(|_| UploadApiError::Unknown)?

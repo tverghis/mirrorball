@@ -1,7 +1,6 @@
-use axum::{
-    http::StatusCode,
-    response::{IntoResponse, Response},
-};
+use axum::http::StatusCode;
+
+use crate::api::ApiError;
 
 #[derive(Debug)]
 pub enum UploadApiError {
@@ -11,26 +10,29 @@ pub enum UploadApiError {
     Unknown,
 }
 
-impl IntoResponse for UploadApiError {
-    fn into_response(self) -> Response {
-        match self {
-            Self::CreateUpload => (
+impl From<UploadApiError> for ApiError {
+    fn from(err: UploadApiError) -> ApiError {
+        match err {
+            UploadApiError::CreateUpload => ApiError::new(
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Failed to create upload".to_owned(),
+                "create_upload_failed",
+                "Failed to create upload",
             ),
-            Self::ChunkHashCount(count) => (
+            UploadApiError::ChunkHashCount(count) => ApiError::new(
                 StatusCode::BAD_REQUEST,
+                "invalid_chunk_hash_count",
                 format!("Chunk hashes count must be in the range [1, 256] - got {count}"),
             ),
-            Self::InvalidDigest => (
+            UploadApiError::InvalidDigest => ApiError::new(
                 StatusCode::BAD_REQUEST,
-                "Received an invalid SHA256 digest".to_owned(),
+                "invalid_digest",
+                "Received an invalid SHA256 digest",
             ),
-            Self::Unknown => (
+            UploadApiError::Unknown => ApiError::new(
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "An unknown error occurred".to_owned(),
+                "internal_error",
+                "An unknown error occurred",
             ),
         }
-        .into_response()
     }
 }

@@ -34,3 +34,9 @@ pub struct UploadSummary {
     pub size: NonZeroU64,
     pub state: UploadState,
 }
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ErrorResponse {
+    pub code: String,
+    pub message: String,
+}
