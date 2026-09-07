@@ -4,14 +4,8 @@ use std::{
 };
 
 use jiff::Timestamp;
+use mirrorball_api::{UploadState, UploadSummary};
 use serde::Serialize;
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
-pub enum UploadState {
-    NotStarted,
-    InProgress,
-    Complete,
-}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Upload {
@@ -39,5 +33,21 @@ impl Upload {
 
     pub fn is_pending(&self) -> bool {
         self.state != UploadState::Complete
+    }
+}
+
+impl From<&Upload> for UploadSummary {
+    fn from(upload: &Upload) -> Self {
+        Self {
+            id: upload.id,
+            destination: upload
+                .destination
+                .clone()
+                .into_os_string()
+                .into_string()
+                .expect("PathBuf should be valid UTF-8"),
+            size: upload.size,
+            state: upload.state,
+        }
     }
 }

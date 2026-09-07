@@ -444,6 +444,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "mirrorball-api"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "mirrorball-cli"
 version = "0.1.0"
 dependencies = [
@@ -458,6 +465,7 @@ dependencies = [
  "anyhow",
  "axum",
  "jiff",
+ "mirrorball-api",
  "serde",
  "sha2",
  "tokio",

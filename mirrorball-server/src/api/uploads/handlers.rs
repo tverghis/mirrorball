@@ -1,6 +1,9 @@
-use std::sync::Arc;
+use std::{path::PathBuf, sync::Arc};
 
 use axum::{Json, extract::State};
+use mirrorball_api::{
+    CreateUploadRequest, CreateUploadResponse, PendingUploadsResponse, UploadSummary,
+};
 
 use super::domain::*;
 use crate::{common::ChunkDigest, repository::UploadsRepository};
@@ -23,8 +26,10 @@ pub async fn create_upload_request(
 
     let digests = digests.map_err(|_| UploadApiError::InvalidDigest)?;
 
+    let destination_path = PathBuf::from(body.destination);
+
     let upload = repo
-        .new_upload(body.destination, body.file_size, &digests)
+        .new_upload(destination_path, body.file_size, &digests)
         .map_err(|_| UploadApiError::CreateUpload)?;
 
     Ok(Json(CreateUploadResponse {
@@ -35,9 +40,12 @@ pub async fn create_upload_request(
 pub async fn get_pending_uploads(
     State(repo): State<Arc<dyn UploadsRepository>>,
 ) -> Result<Json<PendingUploadsResponse>, UploadApiError> {
-    let pending_uploads = repo
+    let pending_uploads: Vec<_> = repo
         .pending_uploads()
-        .map_err(|_| UploadApiError::Unknown)?;
+        .map_err(|_| UploadApiError::Unknown)?
+        .iter()
+        .map(UploadSummary::from)
+        .collect();
 
     Ok(Json(PendingUploadsResponse {
         item_count: pending_uploads.len(),

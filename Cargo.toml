@@ -1,6 +1,7 @@
 [workspace]
 resolver = "3"
-members = ["mirrorball-cli","mirrorball-server"]
+members = ["mirrorball-api", "mirrorball-cli", "mirrorball-server"]
 
 [workspace.dependencies]
 anyhow = "1.0"
+serde = { version = "1", features = ["derive"] }
