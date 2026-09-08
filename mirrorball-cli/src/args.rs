@@ -14,9 +14,9 @@ pub enum Command {
 
 #[derive(Debug)]
 pub struct TransferFileArgs {
-    server_address: String,
-    destination: String,
-    file: PathBuf,
+    pub server_address: String,
+    pub destination: String,
+    pub file: PathBuf,
 }
 
 impl Command {

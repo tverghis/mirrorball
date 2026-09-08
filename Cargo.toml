@@ -5,3 +5,4 @@ members = ["mirrorball-api", "mirrorball-cli", "mirrorball-server"]
 [workspace.dependencies]
 anyhow = "1.0"
 serde = { version = "1", features = ["derive"] }
+sha2 = "0.11"

@@ -1,5 +1,6 @@
 use crate::args::Command;
 
+mod api;
 mod args;
 
 const USAGE: &str = r#"USAGE: mirb -s SERVER_ADDRESS -d REMOTE_DESTINATION FILE
@@ -22,7 +23,7 @@ EXAMPLES:
 Copy photos.tgz to the host at "/foo/bar/photos.tar.gz":
   mirb -s http://my-server.example.com -d "/foo/bar/" photos.tar.gz"#;
 
-fn main() {
+fn main() -> anyhow::Result<()> {
     let cmd = match Command::parse_from_env() {
         Err(e) => {
             eprintln!("Error parsing arguments: {e}.\n");
@@ -34,8 +35,10 @@ fn main() {
 
     match cmd {
         Command::Help => print_usage(),
-        Command::TransferFile(args) => todo!(),
-    }
+        Command::TransferFile(args) => api::transfer_file(args)?,
+    };
+
+    Ok(())
 }
 
 fn print_usage() {

@@ -6,3 +6,6 @@ edition = "2024"
 [dependencies]
 anyhow = { workspace = true }
 lexopt = "0.3"
+mirrorball-api = { path = "../mirrorball-api" }
+sha2 = { workspace = true }
+ureq = { version = "3.4", features = ["json"] }
