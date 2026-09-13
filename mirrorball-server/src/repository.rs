@@ -66,7 +66,7 @@ impl UploadsRepository for InMemoryRepository {
 
         let token = derive_token(size, chunk_hashes);
 
-        let upload = Upload::new(cur_id, token, destination, size);
+        let upload = Upload::new(cur_id, token, destination, size, chunk_hashes.to_vec());
         state.uploads.insert(cur_id, upload.clone());
 
         state.id = state.id.checked_add(1).context("cannot increment id")?;

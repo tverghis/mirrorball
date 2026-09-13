@@ -7,6 +7,8 @@ use jiff::Timestamp;
 use mirrorball_api::{UploadState, UploadSummary};
 use serde::Serialize;
 
+use crate::common::ChunkDigest;
+
 #[derive(Debug, Clone, Serialize)]
 pub struct Upload {
     pub id: NonZeroUsize,
@@ -15,10 +17,18 @@ pub struct Upload {
     pub size: NonZeroU64,
     pub state: UploadState,
     pub created_at: Timestamp,
+    #[serde(skip)]
+    pub chunk_hashes: Vec<ChunkDigest>,
 }
 
 impl Upload {
-    pub fn new(id: NonZeroUsize, token: String, destination: PathBuf, size: NonZeroU64) -> Self {
+    pub fn new(
+        id: NonZeroUsize,
+        token: String,
+        destination: PathBuf,
+        size: NonZeroU64,
+        chunk_hashes: Vec<ChunkDigest>,
+    ) -> Self {
         let now = Timestamp::now();
 
         Self {
@@ -28,6 +38,7 @@ impl Upload {
             size,
             state: UploadState::NotStarted,
             created_at: now,
+            chunk_hashes,
         }
     }
 
