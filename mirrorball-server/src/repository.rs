@@ -25,6 +25,8 @@ pub trait UploadsRepository: Send + Sync {
     ) -> anyhow::Result<Upload>;
 
     fn pending_uploads(&self) -> anyhow::Result<Vec<Upload>>;
+
+    fn upload_by_token(&self, token: &str) -> anyhow::Result<Option<Upload>>;
 }
 
 #[derive(Debug)]
@@ -83,6 +85,16 @@ impl UploadsRepository for InMemoryRepository {
             .filter(|upload| upload.is_pending())
             .cloned()
             .collect())
+    }
+
+    fn upload_by_token(&self, token: &str) -> anyhow::Result<Option<Upload>> {
+        let state = self.state.lock().unwrap();
+
+        Ok(state
+            .uploads
+            .values()
+            .find(|upload| upload.token == token)
+            .cloned())
     }
 }
 
