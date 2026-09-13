@@ -2,6 +2,7 @@ use crate::args::Command;
 
 mod api;
 mod args;
+mod chunks;
 
 const USAGE: &str = r#"USAGE: mirb -s SERVER_ADDRESS -d REMOTE_DESTINATION FILE
 

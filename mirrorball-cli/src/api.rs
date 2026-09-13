@@ -5,8 +5,7 @@ use mirrorball_api::{CreateUploadRequest, CreateUploadResponse};
 use sha2::{Digest, Sha256};
 
 use crate::args::TransferFileArgs;
-
-const NUM_CHUNKS: usize = 8;
+use crate::chunks;
 
 pub fn transfer_file(args: TransferFileArgs) -> anyhow::Result<()> {
     let mut file = File::open(args.file)?;
@@ -18,10 +17,10 @@ pub fn transfer_file(args: TransferFileArgs) -> anyhow::Result<()> {
         bail!("read 0 bytes from file");
     }
 
-    let chunk_size = bytes.len().div_ceil(NUM_CHUNKS);
+    let chunk_size = chunks::chunk_size(bytes_read as u64) as usize;
 
     let chunk_hashes: Vec<_> = bytes
-        .chunks(chunk_size as usize)
+        .chunks(chunk_size)
         .map(Sha256::digest)
         .map(|d| byte_slice_to_hex_string(&d))
         .collect();
