@@ -1,5 +1,7 @@
 mod uploads;
 
+use std::{path::PathBuf, sync::Arc};
+
 use axum::{
     Json, Router,
     http::StatusCode,
@@ -16,11 +18,20 @@ pub fn get_api_routes(config: &Config) -> Router<()> {
 }
 
 fn get_v1_router(config: &Config) -> Router<()> {
-    let repo = repository::for_config(config);
+    let state = ApiState {
+        repository: repository::for_config(config),
+        staging: config.staging.clone(),
+    };
 
-    let uploads_router = uploads::router(repo);
+    let uploads_router = uploads::router(state);
 
     Router::new().nest("/uploads", uploads_router)
+}
+
+#[derive(Clone)]
+pub struct ApiState {
+    pub repository: Arc<dyn repository::UploadsRepository>,
+    pub staging: PathBuf,
 }
 
 pub type ApiResponse<T> = Result<Json<T>, ApiError>;

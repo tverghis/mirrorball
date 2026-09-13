@@ -5,6 +5,7 @@ use crate::api::ApiError;
 #[derive(Debug)]
 pub enum UploadApiError {
     CreateUpload,
+    CreateStagingFile,
     ChunkHashCount(usize),
     InvalidDigest,
     Unknown,
@@ -17,6 +18,11 @@ impl From<UploadApiError> for ApiError {
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "create_upload_failed",
                 "Failed to create upload",
+            ),
+            UploadApiError::CreateStagingFile => ApiError::new(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "create_staging_file_failed",
+                "Failed to create the upload's staging file",
             ),
             UploadApiError::ChunkHashCount(count) => ApiError::new(
                 StatusCode::BAD_REQUEST,

@@ -13,7 +13,7 @@ use crate::{api::get_api_routes, config::Config};
 async fn main() -> anyhow::Result<()> {
     let config = Config::from_file("mirrorball.toml").unwrap();
 
-    ensure_data_root(&config)?;
+    ensure_data_dirs(&config)?;
 
     let api_router = get_api_routes(&config);
 
@@ -28,8 +28,9 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn ensure_data_root(config: &Config) -> std::io::Result<()> {
+fn ensure_data_dirs(config: &Config) -> std::io::Result<()> {
     std::fs::create_dir_all(&config.root)?;
+    std::fs::create_dir_all(&config.staging)?;
 
     Ok(())
 }

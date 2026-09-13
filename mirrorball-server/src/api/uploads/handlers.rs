@@ -1,4 +1,8 @@
-use std::{path::PathBuf, sync::Arc};
+use std::{
+    fs::File,
+    num::NonZeroU64,
+    path::{Path, PathBuf},
+};
 
 use axum::{Json, extract::State};
 use mirrorball_api::{
@@ -6,10 +10,13 @@ use mirrorball_api::{
 };
 
 use super::domain::*;
-use crate::{api::ApiResponse, common::ChunkDigest, repository::UploadsRepository};
+use crate::{
+    api::{ApiResponse, ApiState},
+    common::ChunkDigest,
+};
 
 pub async fn create_upload_request(
-    State(repo): State<Arc<dyn UploadsRepository>>,
+    State(state): State<ApiState>,
     Json(body): Json<CreateUploadRequest>,
 ) -> ApiResponse<CreateUploadResponse> {
     let num_chunk_hashes = body.chunk_hashes.len();
@@ -28,19 +35,35 @@ pub async fn create_upload_request(
 
     let destination_path = PathBuf::from(body.destination);
 
-    let upload = repo
+    let upload = state
+        .repository
         .new_upload(destination_path, body.file_size, &digests)
         .map_err(|_| UploadApiError::CreateUpload)?;
+
+    let staging_path = state.staging.join(&upload.token);
+
+    create_sparse_file(&staging_path, body.file_size)
+        .map_err(|_| UploadApiError::CreateStagingFile)?;
 
     Ok(Json(CreateUploadResponse {
         token: upload.token,
     }))
 }
 
+// Pre-allocates the staging file to the full upload size so chunks can be
+// written at arbitrary offsets without the file growing or moving.
+fn create_sparse_file(path: &Path, size: NonZeroU64) -> std::io::Result<()> {
+    let file = File::create(path)?;
+    file.set_len(size.get())?;
+
+    Ok(())
+}
+
 pub async fn get_pending_uploads(
-    State(repo): State<Arc<dyn UploadsRepository>>,
+    State(state): State<ApiState>,
 ) -> ApiResponse<PendingUploadsResponse> {
-    let pending_uploads: Vec<_> = repo
+    let pending_uploads: Vec<_> = state
+        .repository
         .pending_uploads()
         .map_err(|_| UploadApiError::Unknown)?
         .iter()

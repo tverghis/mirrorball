@@ -13,6 +13,7 @@ use crate::repository::RepositoryKind;
 pub struct Config {
     pub repo: RepositoryKind,
     pub root: PathBuf,
+    pub staging: PathBuf,
 }
 
 impl Config {
