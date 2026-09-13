@@ -1,11 +1,10 @@
 use std::{fs::File, io::Read, num::NonZeroU64};
 
 use anyhow::{anyhow, bail};
-use mirrorball_api::{CreateUploadRequest, CreateUploadResponse};
+use mirrorball_api::{CreateUploadRequest, CreateUploadResponse, chunks};
 use sha2::{Digest, Sha256};
 
 use crate::args::TransferFileArgs;
-use crate::chunks;
 
 pub fn transfer_file(args: TransferFileArgs) -> anyhow::Result<()> {
     let mut file = File::open(args.file)?;
